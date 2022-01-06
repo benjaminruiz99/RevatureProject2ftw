@@ -1,3 +1,7 @@
+GIT:
+- Pull from main to current branch: Make sure you checkout to your branch first, then use "git pull origin main"
+
+
 TABLE CREATION:
 - spark.sql("CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
 salary String, destination String)
