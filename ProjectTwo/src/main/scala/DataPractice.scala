@@ -19,17 +19,13 @@ object DataPractice {
       .getOrCreate()
     println("created spark session")
 
-    spark.sparkContext.setLogLevel("WARN")
+    spark.sparkContext.setLogLevel("ERROR")
 
-    //spark.sql("CREATE TABLE IF NOT EXISTS POTDPartyData(ID INT, Rank INT, Name STRING, Server STRING, Datacenter STRING, Job STRING, Score INT, Floor INT, Date STRING) row format delimited fields terminated by ','")
-    //spark.sql("LOAD DATA LOCAL INPATH 'POTDParty.txt' INTO TABLE POTDPartyData")
+    //spark.sql("DROP TABLE IF EXISTS TotalConfirmed")
+    spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate STRING, ProvinceorState STRING, CountryorRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
+    spark.sql("LOAD DATA LOCAL INPATH 'covid_19_data_complete(Kaggle).csv' OVERWRITE INTO TABLE TotalConfirmed")
 
-    val ConfirmedWorldWideDF = spark.read.options(Map("header" -> "true"))
-      .csv("time_series_covid_19_confirmed.csv")
-    ConfirmedWorldWideDF.show()
-
-
-
+    spark.sql("SELECT FLOOR(sum(Confirmed)) as TotalConfirmed FROM TotalConfirmed").show()
     spark.close()
   }
 }
