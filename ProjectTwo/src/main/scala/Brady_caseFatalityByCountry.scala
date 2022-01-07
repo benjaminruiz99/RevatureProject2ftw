@@ -5,7 +5,7 @@ import org.apache.spark.sql.functions._
 
 import sys.process._
 
-object DataPractice {
+object Brady_caseFatalityByCountry {
 
   def main(args: Array[String]): Unit = {
 
@@ -46,8 +46,6 @@ object DataPractice {
     spark.sql("SELECT CountryorRegion, " +
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
       "FROM TotalConfirmed GROUP BY CountryorRegion ORDER BY 2 DESC").show()
-
-
 
     spark.close()
   }
