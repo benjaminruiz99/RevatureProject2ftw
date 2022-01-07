@@ -45,7 +45,9 @@ object DataPractice {
 
     spark.sql("SELECT CountryorRegion, " +
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
-      "FROM TotalConfirmed WHERE CountryorRegion = 'Peru' OR CountryorRegion = 'Bulgaria' OR CountryorRegion GROUP BY CountryorRegion ORDER BY 2 DESC").show()
+      "FROM TotalConfirmed GROUP BY CountryorRegion ORDER BY 2 DESC").show()
+
+
 
     spark.close()
   }
