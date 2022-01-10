@@ -69,27 +69,40 @@ object Brady_totalNewCasesByCountryByMonth {
 //    println("The country with most cases and how many cases")
 //    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show
 
-    spark.sql("DROP TABLE IF EXISTS completeData")
-    spark.sql("CREATE TABLE IF NOT EXISTS completeData(SNo INT, ObservationDate DATE, ProvinceOrState STRING, CountryOrRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
-    spark.sql("LOAD DATA LOCAL INPATH 'covid_19_data_fixed.csv' OVERWRITE INTO TABLE completeData")
+//    spark.sql("DROP TABLE IF EXISTS completeData")
+//    spark.sql("CREATE TABLE IF NOT EXISTS completeData(SNo INT, ObservationDate DATE, ProvinceOrState STRING, CountryOrRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
+//    spark.sql("LOAD DATA LOCAL INPATH 'covid_19_data_fixed.csv' OVERWRITE INTO TABLE completeData")
 
     spark.sql( " SELECT DATE_FORMAT(ObservationDate,\"M-y\") AS Month, CountryOrRegion, ProvinceOrState, max(Confirmed) AS MaxCases, max(Deaths) AS MaxDeaths, max(Recovered) AS MaxRecovered " +
       " FROM completeData GROUP BY 1,3,2").createTempView("monthlyData")
 
     spark.sql("SELECT * FROM monthlyData").show()
 
-    spark.sql(" SELECT Month, CountryorRegion, ProvinceorState, FLOOR(sum(MaxCases)) AS CumulativeMonthlyCases, FLOOR(sum(MaxDeaths)) AS CumulativeMonthlyDeaths, FLOOR(sum(MaxRecovered)) AS CumulativeMonthlyRecovered FROM monthlyData GROUP BY Month, CountryorRegion, ProvinceorState ORDER BY CumulativeMonthlyCases ASC").createTempView("monthlyCumulative")
+    spark.sql(" SELECT Month, " +
+      "CountryorRegion, " +
+      "ProvinceorState, " +
+      "FLOOR(sum(MaxCases)) AS CumulativeMonthlyCases, " +
+      "FLOOR(sum(MaxDeaths)) AS CumulativeMonthlyDeaths, " +
+      "FLOOR(sum(MaxRecovered)) AS CumulativeMonthlyRecovered " +
+      "FROM monthlyData " +
+      "GROUP BY Month, CountryorRegion, ProvinceorState")
+//      "ORDER BY CumulativeMonthlyCases ASC"
+//    )
+      .createTempView("monthlyCumulative")
 
-    spark.sql(" SELECT Month, CountryorRegion, ProvinceorState, CumulativeMonthlyCases, CumulativeMonthlyDeaths, CumulativeMonthlyRecovered," +
-      " LAG(CumulativeMonthlyCases,1) OVER(ORDER BY CumulativeMonthlyCases ASC) AS PreviousMonthCases," +
-      " LAG(CumulativeMonthlyDeaths,1) OVER(ORDER BY CumulativeMonthlyDeaths ASC) AS PreviousMonthDeaths," +
-      " LAG(CumulativeMonthlyRecovered,1) OVER(ORDER BY CumulativeMonthlyRecovered ASC) AS PreviousMonthRecovered" +
-      " FROM monthlyCumulative" +
-      " ORDER BY CumulativeMonthlyCases ASC").createTempView("monthlyCumulative2")
+    spark.sql(" SELECT Month, CountryorRegion, ProvinceorState, CumulativeMonthlyCases, CumulativeMonthlyDeaths, CumulativeMonthlyRecovered, " + " LAG(CumulativeMonthlyCases,1) OVER(ORDER BY CumulativeMonthlyCases ASC) AS PreviousMonthCases, " + " LAG(CumulativeMonthlyDeaths,1) OVER(ORDER BY CumulativeMonthlyDeaths ASC) AS PreviousMonthDeaths, " + " LAG(CumulativeMonthlyRecovered,1) OVER(ORDER BY CumulativeMonthlyRecovered ASC) AS PreviousMonthRecovered " + " FROM monthlyCumulative").createTempView("monthlyCumulative2")
+//    " ORDER BY Month, CountryorRegion,ProvinceorState"
 
-    spark.sql(" SELECT Month, CountryorRegion, ProvinceorState, CumulativeMonthlyCases - IFNULL(PreviousMonthCases,0) AS NewCases, CumulativeMonthlyDeaths - IFNULL(PreviousMonthDeaths,0) AS NewDeaths, CumulativeMonthlyRecovered - IFNULL(PreviousMonthRecovered,0) AS NewRecovered FROM monthlyCumulative2").show()
+    spark.sql(" SELECT Month, " +
+      "CountryorRegion, " +
+      "ProvinceorState, " +
+      "CumulativeMonthlyCases - IFNULL(PreviousMonthCases,0) AS NewCases, " +
+      "CumulativeMonthlyDeaths - IFNULL(PreviousMonthDeaths,0) AS NewDeaths, " +
+      "CumulativeMonthlyRecovered - IFNULL(PreviousMonthRecovered,0) AS NewRecovered " +
+      "FROM monthlyCumulative2")
+      .createOrReplaceTempView("monthlyCumulative3")
 
-
+    spark.sql("SELECT Month, CountryorRegion, ProvinceorState, NewCases, NewDeaths, NewRecovered, NewDeaths / NewCases AS monthlyCaseFatalityRatio FROM monthlyCumulative3 ORDER BY Month, CountryorRegion,ProvinceorState").show()
 
     spark.close()
 
