@@ -20,35 +20,35 @@ object Brady_caseFatalityOverTime {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val TotalConfirmedDF = spark.read.csv("C:\\Data\\Kaggle\\covid_19_data_complete(Kaggle).csv")
-      .toDF("SNo",
-        "ObservationDate",
-        "ProvinceorState",
-        "CountryorRegion",
-        "LastUpdate",
-        "Confirmed",
-        "Deaths",
-        "Recovered"
-      )
-      val TotalConfirmedDF2 = TotalConfirmedDF
-        .withColumn("SNo",col("SNo").cast("int"))
-        .withColumn("ObservationDate",col("ObservationDate").cast("date"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//    val TotalConfirmedDF = spark.read.csv("C:\\Data\\Kaggle\\covid_19_data_complete(Kaggle).csv")
+//      .toDF("SNo",
+//        "ObservationDate",
+//        "ProvinceorState",
+//        "CountryorRegion",
+//        "LastUpdate",
+//        "Confirmed",
+//        "Deaths",
+//        "Recovered"
+//      )
+//      val TotalConfirmedDF2 = TotalConfirmedDF
+//        .withColumn("SNo",col("SNo").cast("int"))
+//        .withColumn("ObservationDate",col("ObservationDate").cast("date"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
+//
+//    "CountryorRegion",
+//      "LastUpdate",
+//      "Confirmed",
+//      "Deaths",
+//      "Recovered"
+//    )
+//    TotalConfirmedDF.show()
 
-    "CountryorRegion",
-      "LastUpdate",
-      "Confirmed",
-      "Deaths",
-      "Recovered"
-    )
-    TotalConfirmedDF.show()
-
-    DF = spark.read.csv("column1","column2").select(col("column1")).cast("int").as......  ??
+//    DF = spark.read.csv("column1","column2").select(col("column1")).cast("int").as......  ??
 
     spark.sql("DROP TABLE IF EXISTS TotalConfirmed")
     spark.sql("CREATE TABLE TotalConfirmed(" +
@@ -65,10 +65,11 @@ object Brady_caseFatalityOverTime {
     )
 
     spark.sql(
-      "LOAD DATA LOCAL INPATH 'covid_19_data_complete(Kaggle).csv'" +
+      "LOAD DATA LOCAL INPATH 'covid_19_data_fixed.csv'" +
       "OVERWRITE INTO TABLE TotalConfirmed"
     )
 
+////  Brian: total confirmed cases.
 //    spark.sql("SELECT FLOOR(sum(Confirmed)) as TotalConfirmed FROM TotalConfirmed")
 //      .show()
 //
@@ -83,22 +84,19 @@ object Brady_caseFatalityOverTime {
 //    println("The country with most cases and how many cases")
 //    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show()
 
-    spark.sql("SELECT SNo," +
-      "date_format(ObservationDate, 'yyyy-mm-dd')," +
-      "ProvinceorState," +
-      "CountryorRegion," +
-      "LastUpdate," +
-      "Confirmed," +
-      "Deaths," +
-      "Recovered" +
-      "FROM TotalConfirmed").show()
-
-
+//    spark.sql("SELECT SNo," +
+//      "date_format(ObservationDate, 'M-y')," +
+//      "ProvinceorState," +
+//      "CountryorRegion," +
+//      "LastUpdate," +
+//      "Confirmed," +
+//      "Deaths," +
+//      "Recovered FROM TotalConfirmed").show()
 
 //    Brady: cumulative case-fatality ratio over time, by country
-    spark.sql("SELECT CountryorRegion, ObservationDate," +
+    spark.sql("SELECT CountryorRegion, date_format(ObservationDate,'M-y') AS Month," +
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
-      "FROM TotalConfirmed GROUP BY 1, 2 ORDER BY 3 DESC").show()
+      "FROM TotalConfirmed GROUP BY 1, 2 ORDER BY 1, 2").show()
 
     spark.close()
   }
