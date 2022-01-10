@@ -54,15 +54,6 @@ object Brady_caseFatalityOverTime {
 //    println("The country with most cases and how many cases")
 //    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show()
 
-//    spark.sql("SELECT SNo," +
-//      "date_format(ObservationDate, 'M-y')," +
-//      "ProvinceorState," +
-//      "CountryorRegion," +
-//      "LastUpdate," +
-//      "Confirmed," +
-//      "Deaths," +
-//      "Recovered FROM TotalConfirmed").show()
-
 //    Brady: cumulative case-fatality ratio by country by month
     spark.sql("SELECT CountryorRegion, date_format(ObservationDate,'M-y') AS Month," +
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
