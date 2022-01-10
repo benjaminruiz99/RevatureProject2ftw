@@ -20,36 +20,6 @@ object Brady_caseFatalityOverTime {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-//    val TotalConfirmedDF = spark.read.csv("C:\\Data\\Kaggle\\covid_19_data_complete(Kaggle).csv")
-//      .toDF("SNo",
-//        "ObservationDate",
-//        "ProvinceorState",
-//        "CountryorRegion",
-//        "LastUpdate",
-//        "Confirmed",
-//        "Deaths",
-//        "Recovered"
-//      )
-//      val TotalConfirmedDF2 = TotalConfirmedDF
-//        .withColumn("SNo",col("SNo").cast("int"))
-//        .withColumn("ObservationDate",col("ObservationDate").cast("date"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//        .withColumn("ProvinceorState",col("ProvinceorState").cast("String"))
-//
-//    "CountryorRegion",
-//      "LastUpdate",
-//      "Confirmed",
-//      "Deaths",
-//      "Recovered"
-//    )
-//    TotalConfirmedDF.show()
-
-//    DF = spark.read.csv("column1","column2").select(col("column1")).cast("int").as......  ??
-
     spark.sql("DROP TABLE IF EXISTS TotalConfirmed")
     spark.sql("CREATE TABLE TotalConfirmed(" +
       "SNo INT," +
@@ -93,7 +63,7 @@ object Brady_caseFatalityOverTime {
 //      "Deaths," +
 //      "Recovered FROM TotalConfirmed").show()
 
-//    Brady: cumulative case-fatality ratio over time, by country
+//    Brady: cumulative case-fatality ratio by country by month
     spark.sql("SELECT CountryorRegion, date_format(ObservationDate,'M-y') AS Month," +
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
       "FROM TotalConfirmed GROUP BY 1, 2 ORDER BY 1, 2").show()
