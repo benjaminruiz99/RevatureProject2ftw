@@ -44,11 +44,9 @@ object BMcK_totalDeathsandRecoveries {
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
       "FROM TotalConfirmed GROUP BY CountryorRegion ORDER BY 2 DESC").show()
 
-    spark.sql("SELECT MAX(Deaths) as TotalConfirmedDeaths FROM TotalConfirmed GROUP BY CountryorRegion").createTempView("TempTCD")
-    spark.sql("SELECT SUM(TotalConfirmedDeaths) FROM TempTCD").show()
+    spark.sql("SELECT MAX(Deaths) as TotalConfirmedDeaths FROM TotalConfirmed").show()
 
-    spark.sql("SELECT MAX(Recovered) as TotalConfirmedRecoveries FROM TotalConfirmed GROUP BY CountryorRegion").createTempView("TempTCR")
-    spark.sql("SELECT FLOOR(SUM(TotalConfirmedRecoveries)) FROM TempTCR").show()
+    spark.sql("SELECT MAX(Recovered) as TotalConfirmedRecoveries FROM TotalConfirmed").show()
 
   }
 }
