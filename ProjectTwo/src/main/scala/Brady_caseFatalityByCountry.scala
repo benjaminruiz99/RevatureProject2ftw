@@ -47,6 +47,33 @@ object Brady_caseFatalityByCountry {
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
       "FROM TotalConfirmed GROUP BY CountryorRegion ORDER BY 2 DESC").show()
 
+
+////  Brian: total confirmed cases.
+//    spark.sql("SELECT FLOOR(sum(Confirmed)) as TotalConfirmed FROM TotalConfirmed")
+//      .show()
+//
+////    Brady: case-fatality ratio by country
+//    spark.sql("SELECT CountryorRegion, " +
+//      "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
+//      "FROM TotalConfirmed GROUP BY CountryorRegion ORDER BY 2 DESC").show()
+//
+////    Ben: country with most cases
+//    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
+//    temp_table.registerTempTable("MaxCasesByStateCountry")
+//    println("The country with most cases and how many cases")
+//    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show()
+
+//    Brady: cumulative case-fatality ratio by country by month
+    spark.sql("SELECT CountryorRegion, date_format(ObservationDate,'M-y') AS Month," +
+      "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
+      "FROM TotalConfirmed GROUP BY 1, 2 ORDER BY 1, 2").show()
+
+    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
+  temp_table.registerTempTable("MaxCasesByStateCountry")
+  println("The country with most cases and how many cases")
+  spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show
+
     spark.close()
   }
+
 }
