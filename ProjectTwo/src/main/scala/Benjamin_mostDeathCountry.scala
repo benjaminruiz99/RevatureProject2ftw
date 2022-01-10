@@ -1,6 +1,7 @@
 import org.apache.spark.sql.SparkSession
 
-object DataPractice_BMCC {
+
+object Benjamin_mostDeathCountry {
   def main(args: Array[String]): Unit = {
 
 
@@ -17,15 +18,15 @@ object DataPractice_BMCC {
     spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate STRING, ProvinceorState STRING, CountryorRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
     spark.sql(s"LOAD DATA LOCAL INPATH \'covid_data_fixed.csv\' OVERWRITE INTO TABLE TotalConfirmed")
 
-    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
-    temp_table.registerTempTable("MaxCasesByStateCountry")
+    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Deaths)) as MaxDeaths FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
+    temp_table.registerTempTable("MaxDeathsByStateCountry")
 
-    val temp_table2 = spark.sql("SELECT CountryorRegion, sum(MaxConfirmed) as MaxConfirmed FROM MaxCasesByStateCountry GROUP BY CountryorRegion")
-    temp_table2.createOrReplaceTempView("MaxCasesByCountry")
-    println("Total cases worldwide")
-    spark.sql("SELECT sum(MaxConfirmed) as WorldwideCases FROM MaxCasesByCountry").show
-    println("The country with most cases and how many cases")
-    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByCountry ORDER BY MaxConfirmed DESC LIMIT 1").show
+    val temp_table2 = spark.sql("SELECT CountryorRegion, sum(MaxDeaths) as MaxDeaths FROM MaxDeathsByStateCountry GROUP BY CountryorRegion")
+    temp_table2.createOrReplaceTempView("MaxDeathsByCountry")
+    println("Total deaths worldwide")
+    spark.sql("SELECT sum(MaxDeaths) AS WorldwideDeaths FROM MaxDeathsByCountry").show
+    println("The country with most deaths and how many deaths")
+    spark.sql("SELECT CountryorRegion, MaxDeaths FROM MaxDeathsByCountry ORDER BY MaxDeaths DESC LIMIT 1").show
     spark.close()
   }
 }
