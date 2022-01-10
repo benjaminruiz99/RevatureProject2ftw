@@ -59,6 +59,13 @@ object Brady_caseFatalityOverTime {
       "MAX(Deaths) / MAX(Confirmed) AS country_mortality_rate " +
       "FROM TotalConfirmed GROUP BY 1, 2 ORDER BY 1, 2").show()
 
+    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
+    temp_table.registerTempTable("MaxCasesByStateCountry")
+    println("The country with most cases and how many cases")
+    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByStateCountry ORDER BY MaxConfirmed DESC LIMIT 1").show
+    spark.close()
+
+
     spark.close()
   }
 }
