@@ -25,8 +25,8 @@ object Benjamin_mostDeathCountry {
     temp_table2.createOrReplaceTempView("MaxDeathsByCountry")
     println("Total deaths worldwide")
     spark.sql("SELECT sum(MaxDeaths) AS WorldwideDeaths FROM MaxDeathsByCountry").show
-    println("The country with most deaths and how many deaths")
-    spark.sql("SELECT CountryorRegion, MaxDeaths FROM MaxDeathsByCountry ORDER BY MaxDeaths DESC LIMIT 1").show
+    println("The 5 countries with the most deaths")
+    spark.sql("SELECT CountryorRegion, MaxDeaths FROM MaxDeathsByCountry ORDER BY MaxDeaths DESC LIMIT 5").show
     spark.close()
   }
 }

@@ -24,8 +24,8 @@ object DataPractice_BMCC {
     temp_table2.createOrReplaceTempView("MaxCasesByCountry")
     println("Total cases worldwide")
     spark.sql("SELECT sum(MaxConfirmed) as WorldwideCases FROM MaxCasesByCountry").show
-    println("The country with most cases and how many cases")
-    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByCountry ORDER BY MaxConfirmed DESC LIMIT 1").show
+    println("The 5 countries with the most cases")
+    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByCountry ORDER BY MaxConfirmed DESC LIMIT 5").show
     spark.close()
   }
 }
