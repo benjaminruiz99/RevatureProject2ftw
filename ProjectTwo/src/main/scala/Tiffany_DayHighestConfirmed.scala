@@ -21,9 +21,10 @@ object Tiffany_DayHighestConfirmed {
 
     spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate DATE, ProvinceorState STRING, CountryorRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
     spark.sql("LOAD DATA LOCAL INPATH 'covid_data_fixed.csv' OVERWRITE INTO TABLE TotalConfirmed")
-        spark.sql("SELECT ObservationDate, SUM(Confirmed) as Total FROM TotalConfirmed GROUP BY ObservationDate").createOrReplaceTempView("ConfirmedTotal")
-        spark.sql("SELECT ObservationDate, MAX(Total) as Max FROM ConfirmedTotal GROUP BY ").show
-        spark.sql("SELECT * FROM ConfirmedTotal").show
+//    spark.sql("SELECT * FROM TotalConfirmed").show
+    spark.sql("SELECT ObservationDate, SUM(Confirmed) OVER (PARTITION BY (ObservationDate)) AS SumConfirmed FROM TotalConfirmed ORDER BY SumConfirmed").createOrReplaceTempView("Confirmed")
+    println("The Date with the highest amount of confirmed cases and how many were confirmed on that day is: ")
+    spark.sql("SELECT DISTINCT ObservationDate, FLOOR(MAX(SumConfirmed)) AS MaxConfirmed FROM Confirmed GROUP BY ObservationDate ORDER BY MaxConfirmed DESC LIMIT 1").show(50)
 
     spark.close()
   }
