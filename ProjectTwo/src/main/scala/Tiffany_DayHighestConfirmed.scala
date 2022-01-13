@@ -19,12 +19,17 @@ object Tiffany_DayHighestConfirmed {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate DATE, ProvinceorState STRING, CountryorRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
+    spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate DATE, ProvinceorState STRING, CountryorRegion STRING, " +
+      "LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
     spark.sql("LOAD DATA LOCAL INPATH 'covid_data_fixed.csv' OVERWRITE INTO TABLE TotalConfirmed")
-//    spark.sql("SELECT * FROM TotalConfirmed").show
-    spark.sql("SELECT ObservationDate, SUM(Confirmed) OVER (PARTITION BY (ObservationDate)) AS SumConfirmed FROM TotalConfirmed ORDER BY SumConfirmed").createOrReplaceTempView("Confirmed")
-    println("The Date with the highest amount of confirmed cases and how many were confirmed on that day is: ")
-    spark.sql("SELECT DISTINCT ObservationDate, FLOOR(MAX(SumConfirmed)) AS MaxConfirmed FROM Confirmed GROUP BY ObservationDate ORDER BY MaxConfirmed DESC LIMIT 1").show(50)
+    spark.sql("SELECT ObservationDate, MAX(Confirmed) AS MaxConfirmed FROM TotalConfirmed " +
+      "GROUP BY ObservationDate ORDER BY MaxConfirmed").createOrReplaceTempView("Confirmed")
+    spark.sql("SELECT ObservationDate as Date, FLOOR(SUM(MaxConfirmed)) AS MaxConfirmed " +
+      "FROM Confirmed GROUP BY Date ORDER BY MaxConfirmed").createOrReplaceTempView("DailyConfirmed")
+    spark.sql("SELECT Date, MaxConfirmed, LAG(MaxConfirmed,1) OVER (ORDER BY MaxConfirmed ASC) " +
+      "AS PreviousMaxConfirmed FROM DailyConfirmed ORDER BY MaxConfirmed ASC").createOrReplaceTempView("DailyMaxConfirmed")
+    spark.sql("SELECT DATE_FORMAT(Date,\"M-d-y\") AS Date, MaxConfirmed - IFNULL(PreviousMaxConfirmed,0) AS Total" +
+      " FROM DailyMaxConfirmed ORDER BY Total DESC LIMIT 1").show
 
     spark.close()
   }
