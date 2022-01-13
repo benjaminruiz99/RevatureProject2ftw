@@ -15,17 +15,17 @@ object DataPractice_BMCC {
     spark.sparkContext.setLogLevel("ERROR")
 
     spark.sql("CREATE TABLE IF NOT EXISTS TotalConfirmed(SNo INT, ObservationDate STRING, ProvinceorState STRING, CountryorRegion STRING, LastUpdate STRING, Confirmed DOUBLE, Deaths DOUBLE, Recovered DOUBLE) row format delimited fields terminated by ',' stored as textfile")
-    spark.sql(s"LOAD DATA LOCAL INPATH \'covid_data_fixed.csv\' OVERWRITE INTO TABLE TotalConfirmed")
+    spark.sql(s"LOAD DATA LOCAL INPATH 'covid_data_fixed.csv' OVERWRITE INTO TABLE TotalConfirmed")
 
-    val temp_table = spark.sql("SELECT ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion")
+    val temp_table = spark.sql("SELECT ObservationDate,ProvinceorState,CountryorRegion,FLOOR(max(Confirmed)) as MaxConfirmed FROM TotalConfirmed GROUP BY ProvinceorState,CountryorRegion,ObservationDate")
     temp_table.registerTempTable("MaxCasesByStateCountry")
 
-    val temp_table2 = spark.sql("SELECT CountryorRegion, sum(MaxConfirmed) as MaxConfirmed FROM MaxCasesByStateCountry GROUP BY CountryorRegion")
+    val temp_table2 = spark.sql("SELECT ObservationDate, CountryorRegion, sum(MaxConfirmed) as MaxConfirmed FROM MaxCasesByStateCountry GROUP BY ObservationDate,CountryorRegion Order By ObservationDate DESC")
     temp_table2.createOrReplaceTempView("MaxCasesByCountry")
     println("Total cases worldwide")
-    spark.sql("SELECT sum(MaxConfirmed) as WorldwideCases FROM MaxCasesByCountry").show
-    println("The 5 countries with the most cases")
-    spark.sql("SELECT CountryorRegion, MaxConfirmed FROM MaxCasesByCountry ORDER BY MaxConfirmed DESC LIMIT 5").show
+    spark.sql("SELECT sum(MaxConfirmed) as WorldwideCases FROM MaxCasesByCountry GROUP BY ObservationDate LIMIT 1").show
+    println("The 20 countries with the most cases")
+    spark.sql("SELECT CountryorRegion, first(MaxConfirmed) as Cases FROM MaxCasesByCountry GROUP BY CountryorRegion ORDER BY 2 DESC").show
     spark.close()
   }
 }
