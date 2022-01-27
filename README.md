@@ -16,8 +16,8 @@ Requirements:
 - Zeppelin
 
 # Contributors
-Benjamin Ruiz
-Brady Dyson
-Brian McKenzie
-Tiffany Garner
-TonyTam Dinh
+- Benjamin Ruiz
+- Brady Dyson
+- Brian McKenzie
+- Tiffany Garner
+- TonyTam Dinh
