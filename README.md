@@ -14,3 +14,10 @@ Requirements:
 - Scala 2.12.10
 - Git + GitHub
 - Zeppelin
+
+# Contributors
+Benjamin Ruiz
+Brady Dyson
+Brian McKenzie
+Tiffany Garner
+TonyTam Dinh
